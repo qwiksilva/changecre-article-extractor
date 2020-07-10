@@ -18,19 +18,6 @@ module.exports.isUrlArticle = (url, isUrlArticleDefinition) => {
         }
     }
 
-    if (isUrlArticleDefinition.hasDate) {
-        const foundDate = findDateInURL(url);
-        if (foundDate) {
-            return true;
-        }
-    }
-
-    const minDashes = isUrlArticleDefinition.minDashes || 0;
-
-    const dashes = url.split('').reduce((acc, char) => char === '-' ? acc + 1 : acc, 0);
-    if (dashes >= minDashes) {
-        return true;
-    }
     return false;
 };
 

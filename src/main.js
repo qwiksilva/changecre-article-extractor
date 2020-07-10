@@ -3,6 +3,7 @@ const extractor = require('unfluff');
 const chrono = require('chrono-node');
 const urlLib = require('url');
 const moment = require('moment');
+var axios = require('axios');
 
 const { parseDateToMoment, loadAllDataset, executeExtendOutputFn, isDateValid, findDateInURL, parseDomain, completeHref } = require('./utils.js');
 const { countWords, isUrlArticle, isInDateRange } = require('./article-recognition.js');
@@ -16,6 +17,8 @@ Apify.main(async () => {
 
     const {
         startUrls,
+        s3storage = false,
+        apiEndpoint = false,
         onlyNewArticles = false,
         onlyInsideArticles = true,
         saveHtml = false,
@@ -275,6 +278,27 @@ Apify.main(async () => {
             if (isArticle) {
                 console.log(`IS VALID ARTICLE --- ${request.url}`);
                 await Apify.pushData(completeResult);
+
+                if (apiEndpoint) {
+                    var config = {
+                        method: 'post',
+                        url: apiEndpoint,
+                        headers: { 
+                            'Content-Type': 'application/json'
+                        },
+                        data : JSON.stringify(completeResult)
+                    };
+
+                    axios(config)
+                    .then(function (response) {
+                        console.log("Data sent to API with response:")
+                        console.log(JSON.stringify(response.data));
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                }
+
                 articlesScraped++;
 
                 if (maxArticlesPerCrawl && articlesScraped >= maxArticlesPerCrawl) {

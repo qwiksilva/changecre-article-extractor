@@ -1,6 +1,6 @@
 {
-    "title": "Input schema for Smart article extractor",
-    "description": "Input for Smart article extractor",
+    "title": "Input schema for CRE article extractor",
+    "description": "Input for CRE article extractor",
     "type": "object",
     "schemaVersion": 1,
     "properties": {
@@ -8,6 +8,18 @@
             "title": "Start URLs",
             "type": "array",
             "description": "Can be main page URL or any category URLs. If you want direct article URLs, you have to add `{ \"label\": \"article\"}` to the userData`",
+            "editor": "requestListSources"
+        },
+        "s3storage": {
+            "title": "External Storage Url",
+            "type": "object",
+            "description": "URL for where you want to send the data to",
+            "editor": "requestListSources"
+        },
+        "apiEndpoint": {
+            "title": "External Storage Url",
+            "type": "string",
+            "description": "URL for where you want to send the data to",
             "editor": "requestListSources"
         },
         "onlyNewArticles": {
