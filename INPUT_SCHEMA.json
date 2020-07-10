@@ -14,13 +14,13 @@
             "title": "External Storage Url",
             "type": "object",
             "description": "URL for where you want to send the data to",
-            "editor": "requestListSources"
+            "editor": "json"
         },
         "apiEndpoint": {
             "title": "External Storage Url",
             "type": "string",
             "description": "URL for where you want to send the data to",
-            "editor": "requestListSources"
+            "editor": "textfield"
         },
         "onlyNewArticles": {
             "title": "Only new articles",
