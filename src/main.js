@@ -8,12 +8,14 @@ var axios = require('axios');
 const { parseDateToMoment, loadAllDataset, executeExtendOutputFn, isDateValid, findDateInURL, parseDomain, completeHref } = require('./utils.js');
 const { countWords, isUrlArticle, isInDateRange } = require('./article-recognition.js');
 const CUNotification = require('./compute-units-notification.js');
-const { MAX_DATASET_ITEMS_LOADED, GOOGLE_BOT_HEADERS } = require('./constants.js');
+const { MAX_DATASET_ITEMS_LOADED, GOOGLE_BOT_HEADERS, test_input } = require('./constants.js');
 
 Apify.main(async () => {
     const input = await Apify.getValue('INPUT');
     console.log('input');
     console.dir(input);
+
+    console.log(test_input);
 
     const {
         startUrls,
@@ -40,7 +42,7 @@ Apify.main(async () => {
         notifyAfterCUs,
         notificationEmails,
         notifyAfterCUsPeriodically,
-    } = input;
+    } = input || test_input ;
 
     const defaultNotificationState = {
         next: notifyAfterCUsPeriodically,

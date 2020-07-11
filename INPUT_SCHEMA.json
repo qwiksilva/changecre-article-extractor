@@ -11,13 +11,13 @@
             "editor": "requestListSources"
         },
         "s3storage": {
-            "title": "External Storage Url",
+            "title": "s3 Storage Inforormation. Leave blank if you do not want s3 storage.",
             "type": "object",
             "description": "URL for where you want to send the data to",
             "editor": "json"
         },
         "apiEndpoint": {
-            "title": "External Storage Url",
+            "title": "API Endpoint Uri. Leave blank if you do not want to send data to an API.",
             "type": "string",
             "description": "URL for where you want to send the data to",
             "editor": "textfield"
