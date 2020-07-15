@@ -6,9 +6,10 @@ module.exports = {
     },
     MAX_DATASET_ITEMS_LOADED: 3 * 1000 * 1000,
     test_input: {
-        startUrls: [{"url": "http://rebusinessonline.com"}],
+        startUrls: [{"url": "https://www.nmhc.org/news/newsroom/"}],
         s3storage: false,
         apiEndpoint: false,
+        datasetID = undefined,
         onlyNewArticles: false,
         onlyInsideArticles: true,
         saveHtml: false,
@@ -16,7 +17,7 @@ module.exports = {
         minWords: 150,
         dateFrom: "2 days",
         isUrlArticleDefinition: {
-            "minDashes": 5
+            "minDashes": 4
         },
         mustHaveDate: true,
         pseudoUrls: false,

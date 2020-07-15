@@ -27,7 +27,6 @@ module.exports.isUrlArticle = (url, isUrlArticleDefinition) => {
 
     if (isUrlArticleDefinition.minDashes) {
         const dashes = url.split('').reduce((acc, char) => char === '-' ? acc + 1 : acc, 0);
-        console.log(url, dashes, isUrlArticleDefinition.minDashes);
         if (dashes >= isUrlArticleDefinition.minDashes) {
             return true;
         }   

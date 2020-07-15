@@ -21,6 +21,7 @@ Apify.main(async () => {
         startUrls,
         s3storage = false,
         apiEndpoint = false,
+        datasetId = undefined,
         onlyNewArticles = false,
         onlyInsideArticles = true,
         saveHtml = false,
@@ -128,7 +129,8 @@ Apify.main(async () => {
 
     const handlePageFunction = async ({ request, $, body }) => {
         const title = $('title').text();
-
+        console.log('BODY');
+        console.log(body);
         const { loadedUrl } = request;
 
         if (title.includes('Attention Required!')) {
@@ -232,9 +234,12 @@ Apify.main(async () => {
                 ...metadata,
                 html: saveHtml ? body : undefined,
             };
-
+            const overrideFields = {        
+                'links': undefined,
+                'videos': undefined
+            }
             const userResult = await executeExtendOutputFn(extendOutputFunctionEvaled, $);
-            const completeResult = { ...result, ...userResult };
+            const completeResult = { ...combinedResult, ...overrideFields, ...userResult };
 
             console.log('Raw date:', completeResult.date);
 
@@ -279,7 +284,7 @@ Apify.main(async () => {
 
             if (isArticle) {
                 console.log(`IS VALID ARTICLE --- ${request.url}`);
-                await Apify.pushData(completeResult);
+                await Apify.openDataset(datasetId).pushData(completeResult);
 
                 if (apiEndpoint) {
                     var config = {

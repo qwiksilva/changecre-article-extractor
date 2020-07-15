@@ -11,15 +11,21 @@
             "editor": "requestListSources"
         },
         "s3storage": {
-            "title": "s3 Storage Inforormation. Leave blank if you do not want s3 storage.",
+            "title": "s3 Storage Inforormation",
             "type": "object",
-            "description": "URL for where you want to send the data to",
+            "description": "Leave blank if you do not want s3 storage.",
             "editor": "json"
         },
         "apiEndpoint": {
-            "title": "API Endpoint Uri. Leave blank if you do not want to send data to an API.",
+            "title": "API Endpoint",
             "type": "string",
-            "description": "URL for where you want to send the data to",
+            "description": "URL for where you want to send the data to. Leave blank if you do not want to send data to an API.",
+            "editor": "textfield"
+        },
+        "datasetId": {
+            "title": "Dataset ID",
+            "type": "string",
+            "description": "Dataset ID",
             "editor": "textfield"
         },
         "onlyNewArticles": {
