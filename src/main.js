@@ -21,7 +21,7 @@ Apify.main(async () => {
         startUrls,
         s3storage = false,
         apiEndpoint = false,
-        datasetId = undefined,
+        datasetId = null,
         onlyNewArticles = false,
         onlyInsideArticles = true,
         saveHtml = false,
@@ -44,6 +44,13 @@ Apify.main(async () => {
         notificationEmails,
         notifyAfterCUsPeriodically,
     } = input || test_input ;
+
+    var dataset = null;
+    if (datasetId) {
+        dataset = await Apify.openDataset(datasetId);
+    } else {
+        dataset = await Apify.openDataset();
+    }
 
     const defaultNotificationState = {
         next: notifyAfterCUsPeriodically,
@@ -129,8 +136,6 @@ Apify.main(async () => {
 
     const handlePageFunction = async ({ request, $, body }) => {
         const title = $('title').text();
-        console.log('BODY');
-        console.log(body);
         const { loadedUrl } = request;
 
         if (title.includes('Attention Required!')) {
@@ -239,7 +244,7 @@ Apify.main(async () => {
                 'videos': undefined
             }
             const userResult = await executeExtendOutputFn(extendOutputFunctionEvaled, $);
-            const completeResult = { ...combinedResult, ...overrideFields, ...userResult };
+            const completeResult = { ...result, ...overrideFields, ...userResult };
 
             console.log('Raw date:', completeResult.date);
 
@@ -284,8 +289,8 @@ Apify.main(async () => {
 
             if (isArticle) {
                 console.log(`IS VALID ARTICLE --- ${request.url}`);
-                await Apify.openDataset(datasetId).pushData(completeResult);
-
+                await dataset.pushData(completeResult);
+                
                 if (apiEndpoint) {
                     var config = {
                         method: 'post',

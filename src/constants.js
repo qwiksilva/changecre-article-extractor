@@ -9,13 +9,13 @@ module.exports = {
         startUrls: [{"url": "https://www.nmhc.org/news/newsroom/"}],
         s3storage: false,
         apiEndpoint: false,
-        datasetID = undefined,
+        datasetId: false,
         onlyNewArticles: false,
         onlyInsideArticles: true,
         saveHtml: false,
         useGoogleBotHeaders: false,
         minWords: 150,
-        dateFrom: "2 days",
+        dateFrom: false,
         isUrlArticleDefinition: {
             "minDashes": 4
         },
