@@ -15,11 +15,10 @@ Apify.main(async () => {
     console.log('input');
     console.dir(input);
 
-    console.log(test_input);
-
     const {
+        // These are category URLs mostly
         startUrls,
-        s3storage = false,
+        articleUrls = [],
         apiEndpoint = false,
         datasetId = null,
         onlyNewArticles = false,
@@ -39,6 +38,14 @@ Apify.main(async () => {
         debug = false,
         maxConcurrency,
         extendOutputFunction,
+
+        // browser options
+        useBrowser = false,
+        pageWaitMs,
+        pageWaitSelector,
+        gotoFunction,
+
+        // notification options for J.S.
         stopAfterCUs,
         notifyAfterCUs,
         notificationEmails,
@@ -51,7 +58,7 @@ Apify.main(async () => {
     } else {
         dataset = await Apify.openDataset();
     }
-
+    
     const defaultNotificationState = {
         next: notifyAfterCUsPeriodically,
         wasNotified: false,
@@ -89,7 +96,7 @@ Apify.main(async () => {
 
     // Valid format is either YYYY-MM-DD or format like "1 week" or "20 days"
     const parsedDateFrom = parseDateToMoment(dateFrom);
-    console.log(parsedDateFrom);
+    // console.log(parsedDateFrom);
 
     const arePseudoUrls = pseudoUrls && pseudoUrls.length > 0;
     if ((arePseudoUrls && !linkSelector) || (linkSelector && !arePseudoUrls)) {
@@ -120,22 +127,54 @@ Apify.main(async () => {
 
     for (const request of startUrls) {
         const { url } = request;
-        console.log(`enquing start URL: ${url}`);
+        console.log(`Enquing start URL: ${url}`);
 
         await requestQueue.addRequest({
             url,
             userData: {
+                // This is here for backwards compatibillity
                 label: request.userData && request.userData.label === 'ARTICLE' ? 'ARTICLE' : 'CATEGORY',
                 index: 0,
                 depth: 0,
             },
-            headers: useGoogleBotHeaders ? GOOGLE_BOT_HEADERS : { 'User-Agent': Apify.utils.getRandomUserAgent() },
+            headers: useGoogleBotHeaders ? GOOGLE_BOT_HEADERS : undefined,
         });
 
     }
 
-    const handlePageFunction = async ({ request, $, body }) => {
-        const title = $('title').text();
+    let index = 0;
+    for (const request of articleUrls) {
+        const { url } = request;
+        console.log(`Enquing article URL: ${url}`);
+
+        await requestQueue.addRequest({
+            url,
+            userData: {
+                label: 'ARTICLE',
+                index: 0,
+            },
+            headers: useGoogleBotHeaders ? GOOGLE_BOT_HEADERS : undefined,
+        });
+        index++;
+    }
+
+    // This can be Cheerio or Puppeteer page so we have to differentiate that often
+    // That's why there will be often "if (page) {...}"
+    const handlePageFunction = async ({ request, $, body, page }) => {
+        if (page && (pageWaitMs)) {
+            await page.waitFor(pageWaitMs);
+        }
+
+        if (page && (pageWaitSelector)) {
+            await page.waitFor(pageWaitSelector);
+        }
+
+        const html = page ? await page.content() : body;
+
+        const title = page
+            ? await page.title()
+            : $('title').text();
+
         const { loadedUrl } = request;
 
         if (title.includes('Attention Required!')) {
@@ -152,21 +191,24 @@ Apify.main(async () => {
             }
 
             // all links
-            const allHrefs = [];
+            let allHrefs = [];
             let aTagsCount = 0;
-            $('a').each(function () {
-                aTagsCount++;
-                const relativeOrAbsoluteLink = $(this).attr('href');
-                if (relativeOrAbsoluteLink) {
-                    const absoluteLink = urlLib.resolve(loadedUrl, relativeOrAbsoluteLink);
-                    allHrefs.push(absoluteLink);
-                }
-            });
+            if (page) {
+                allHrefs = await page.$$eval('a', (els) => els.map((el) => el.href));
+            } else {
+                $('a').each(function () {
+                    aTagsCount++;
+                    const relativeOrAbsoluteLink = $(this).attr('href');
+                    if (relativeOrAbsoluteLink) {
+                        const absoluteLink = urlLib.resolve(loadedUrl, relativeOrAbsoluteLink);
+                        allHrefs.push(absoluteLink);
+                    }
+                });
+            }
             console.log(`total number of a tags: ${aTagsCount}`);
             console.log(`total number of links: ${allHrefs.length}`);
 
             let links = allHrefs;
-            await Apify.setValue('LINKS', links);
 
             // filtered only inside links
             if (onlyInsideArticles) {
@@ -194,20 +236,25 @@ Apify.main(async () => {
                         label: 'ARTICLE',
                         index,
                         loadedDomain,
-                        headers: useGoogleBotHeaders ? GOOGLE_BOT_HEADERS : { 'User-Agent': Apify.utils.getRandomUserAgent() },
+                        headers: useGoogleBotHeaders ? GOOGLE_BOT_HEADERS : {},
                     },
                 });
             }
             if (debug) {
-                await Apify.setValue(Math.random().toString(), body, { contentType: 'text/html' });
+                await Apify.setValue(Math.random().toString(), html || await page.content(), { contentType: 'text/html' });
             }
 
             // We handle optional pseudo URLs and link selectors here
             if (pseudoUrls && pseudoUrls.length > 0 && linkSelector) {
-                const selectedLinks = $(linkSelector)
-                    .map(function () { return $(this).attr('href'); }).toArray()
-                    .filter((link) => !!link)
-                    .map((link) => link.startsWith('http') ? link : completeHref(request.url, link));
+                let selectedLinks;
+                if (page) {
+                    selectedLinks = await page.$$eval(linkSelector, (els) => els.map((el) => el.href).filter((link) => !!link));
+                } else {
+                    selectedLinks = $(linkSelector)
+                        .map(function () { return $(this).attr('href'); }).toArray()
+                        .filter((link) => !!link)
+                        .map((link) => link.startsWith('http') ? link : completeHref(request.url, link));
+                }
                 const purls = pseudoUrls.map((req) => new Apify.PseudoUrl(
                     req.url,
                     { userData: req.userData, depth: request.userData.depth + 1 }
@@ -229,7 +276,7 @@ Apify.main(async () => {
         }
 
         if (request.userData.label === 'ARTICLE') {
-            const metadata = extractor(body);
+            const metadata = extractor(html );
 
             const result = {
                 url: request.url,
@@ -237,13 +284,41 @@ Apify.main(async () => {
                 domain: request.userData.domain,
                 loadedDomain: request.userData.loadedDomain,
                 ...metadata,
-                html: saveHtml ? body : undefined,
+                html: saveHtml ? html : undefined,
             };
             const overrideFields = {        
                 'links': undefined,
-                'videos': undefined
+                'videos': undefined,
+                'tags': undefined,
+                'favicon': undefined,
+                'copyright':undefined
             }
-            const userResult = await executeExtendOutputFn(extendOutputFunctionEvaled, $);
+            let userResult = {};
+            if (extendOutputFunction) {
+                if (page) {
+                    await Apify.utils.puppeteer.injectJQuery(page);
+                    const pageFunctionString = extendOutputFunction.toString();
+
+                    const evaluatePageFunction = async (fnString) => {
+                        const fn = eval(fnString);
+                        try {
+                            const result = await fn($);
+                            return { result };
+                        } catch (e) {
+                            return { error: e.toString()};
+                        }
+                    }
+                    const { result, error } = await page.evaluate(evaluatePageFunction, pageFunctionString);
+                    if (error) {
+                        console.log(`extendOutputFunctionfailed. Returning default output. Error: ${error}`);
+                    } else {
+                        userResult = result;
+                    }
+                } else {
+                    userResult = await executeExtendOutputFn(extendOutputFunctionEvaled, $);
+                }
+            }
+
             const completeResult = { ...result, ...overrideFields, ...userResult };
 
             console.log('Raw date:', completeResult.date);
@@ -270,7 +345,7 @@ Apify.main(async () => {
             const wordsCount = countWords(completeResult.text);
 
             const isInDateRangeVar = isInDateRange(completeResult.date, parsedDateFrom);
-            if (mustHaveDate && !isInDateRangeVar && !!completeResult.date) {
+            if (mustHaveDate && !completeResult.date) {
                 console.log(`ARTICLE - ${request.userData.index} - DATE NOT IN RANGE: ${completeResult.date}`);
                 return;
             }
@@ -290,7 +365,7 @@ Apify.main(async () => {
             if (isArticle) {
                 console.log(`IS VALID ARTICLE --- ${request.url}`);
                 await dataset.pushData(completeResult);
-                
+
                 if (apiEndpoint) {
                     var config = {
                         method: 'post',
@@ -323,15 +398,38 @@ Apify.main(async () => {
         }
     };
 
-    const crawler = new Apify.CheerioCrawler({
+    let proxyConfigurationClass;
+    if (proxyConfiguration && (proxyConfiguration.useApifyProxy || Array.isArray(proxyConfiguration.proxyUrls))) {
+        proxyConfigurationClass = await Apify.createProxyConfiguration({
+            groups: proxyConfiguration.apifyProxyGroups,
+            countryCode: proxyConfiguration.apifyProxyCountry,
+        });
+    }
+
+    const gotoFunctionCode = eval(gotoFunction);
+
+    // const gotoFunctionCode = async ({ page, request }) => {
+    //     let loginUrl = `https://store.law.com/Registration/Login.aspx?source=${request.url}`
+    //     await page.goto(loginUrl);
+    //     await page.type('#uid', 'sparkpill2@gmail.com');
+    //     await page.type('#upass', 'changemultifamily123');
+    //     await page.click('#loginSubmit');
+    //     await page.waitForNavigation();
+    //     return page;
+    // };
+    const genericCrawlerOptions = {
         requestQueue,
         handlePageFunction,
+        gotoFunction: gotoFunctionCode,
         maxConcurrency,
         maxRequestRetries: 3,
         maxRequestsPerCrawl: maxPagesPerCrawl,
-        useApifyProxy: proxyConfiguration.useApifyProxy,
-        apifyProxyGroups: proxyConfiguration.apifyProxyGroups,
-    });
+        proxyConfiguration: proxyConfigurationClass,
+    }
+
+    const crawler = useBrowser
+        ? new Apify.PuppeteerCrawler(genericCrawlerOptions)
+        : new Apify.CheerioCrawler(genericCrawlerOptions);
 
     console.log('starting crawler...');
     await crawler.run();

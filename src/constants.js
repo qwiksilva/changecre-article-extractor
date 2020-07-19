@@ -6,8 +6,9 @@ module.exports = {
     },
     MAX_DATASET_ITEMS_LOADED: 3 * 1000 * 1000,
     test_input: {
-        startUrls: [{"url": "https://www.nmhc.org/news/newsroom/"}],
-        s3storage: false,
+        startUrls: [],
+        articleUrls: [{"url": "https://www.globest.com/2020/03/30/construction-project-cancellations-rose-sharply-last-week/"}],
+        // startUrls: [{"url": "https://www.nmhc.org/news/nmhc-news/2020/more-apartment-operators-move-to-flex-payment-models/", "userData": {"label":"ARTICLE"}}],
         apiEndpoint: false,
         datasetId: false,
         onlyNewArticles: false,
@@ -19,7 +20,7 @@ module.exports = {
         isUrlArticleDefinition: {
             "minDashes": 4
         },
-        mustHaveDate: true,
+        mustHaveDate: false,
         pseudoUrls: false,
         linkSelector: false,
         maxDepth: 3,
@@ -28,10 +29,22 @@ module.exports = {
         proxyConfiguration: { useApifyProxy: false },
         debug: false,
         maxConcurrency: 5,
-        extendOutputFunction: false,
+        extendOutputFunction: undefined,
         stopAfterCUs: 10,
         notifyAfterCUs: 10,
         notificationEmails: false,
-        notifyAfterCUsPeriodically: 10
+        notifyAfterCUsPeriodically: 10,
+        useBrowser: true,
+        pageWaitMs: 100,
+        pageWaitSelector: undefined,
+        gotoFunction: "async ({ page, request }) => {\
+            let loginUrl = `https://store.law.com/Registration/Login.aspx?source=${request.url}`;\
+            await page.goto(loginUrl);\
+            await page.type('#uid', 'sparkpill2@gmail.com');\
+            await page.type('#upass', 'changemultifamily123');\
+            await page.click('#loginSubmit');\
+            await page.waitForNavigation();\
+            return page;\
+        }",
     }
 };
