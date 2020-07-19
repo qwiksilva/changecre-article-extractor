@@ -408,15 +408,6 @@ Apify.main(async () => {
 
     const gotoFunctionCode = eval(gotoFunction);
 
-    // const gotoFunctionCode = async ({ page, request }) => {
-    //     let loginUrl = `https://store.law.com/Registration/Login.aspx?source=${request.url}`
-    //     await page.goto(loginUrl);
-    //     await page.type('#uid', 'sparkpill2@gmail.com');
-    //     await page.type('#upass', 'changemultifamily123');
-    //     await page.click('#loginSubmit');
-    //     await page.waitForNavigation();
-    //     return page;
-    // };
     const genericCrawlerOptions = {
         requestQueue,
         handlePageFunction,
