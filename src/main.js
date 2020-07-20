@@ -161,12 +161,12 @@ Apify.main(async () => {
     // This can be Cheerio or Puppeteer page so we have to differentiate that often
     // That's why there will be often "if (page) {...}"
     const handlePageFunction = async ({ request, $, body, page }) => {
-        if (page && (pageWaitMs)) {
-            await page.waitFor(pageWaitMs);
-        }
-
         if (page && (pageWaitSelector)) {
             await page.waitFor(pageWaitSelector);
+        }
+
+        if (page && (pageWaitMs)) {
+            await page.waitFor(pageWaitMs);
         }
 
         const html = page ? await page.content() : body;
@@ -376,14 +376,13 @@ Apify.main(async () => {
                         data : JSON.stringify(completeResult)
                     };
 
-                    axios(config)
-                    .then(function (response) {
+                    try {
+                        const response = await axios(config);
                         console.log("Data sent to API with response:")
                         console.log(JSON.stringify(response.data));
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
+                    } catch(error) {
+                        console.log("API error", error);
+                    }
                 }
 
                 articlesScraped++;

@@ -6,8 +6,8 @@ module.exports = {
     },
     MAX_DATASET_ITEMS_LOADED: 3 * 1000 * 1000,
     test_input: {
-        startUrls: [],
-        articleUrls: [{"url": "https://www.globest.com/2020/03/30/construction-project-cancellations-rose-sharply-last-week/"}],
+        startUrls: [{"url": "https://www.nmhc.org/news/newsroom/"}],
+        articleUrls: [],//[{"url": "https://www.nmhc.org/news/nmhc-news/2020/more-apartment-operators-move-to-flex-payment-models/"}],
         // startUrls: [{"url": "https://www.nmhc.org/news/nmhc-news/2020/more-apartment-operators-move-to-flex-payment-models/", "userData": {"label":"ARTICLE"}}],
         apiEndpoint: false,
         datasetId: false,
@@ -15,10 +15,13 @@ module.exports = {
         onlyInsideArticles: true,
         saveHtml: false,
         useGoogleBotHeaders: false,
-        minWords: 150,
+        minWords: 121,
         dateFrom: false,
         isUrlArticleDefinition: {
-            "minDashes": 4
+            "linkIncludes":[
+                "/news/nmhc-news/",
+                "/news/press-release/"
+            ]
         },
         mustHaveDate: false,
         pseudoUrls: false,
@@ -35,16 +38,8 @@ module.exports = {
         notificationEmails: false,
         notifyAfterCUsPeriodically: 10,
         useBrowser: true,
-        pageWaitMs: 100,
-        pageWaitSelector: undefined,
-        gotoFunction: "async ({ page, request }) => {\
-            let loginUrl = `https://store.law.com/Registration/Login.aspx?source=${request.url}`;\
-            await page.goto(loginUrl);\
-            await page.type('#uid', 'sparkpill2@gmail.com');\
-            await page.type('#upass', 'changemultifamily123');\
-            await page.click('#loginSubmit');\
-            await page.waitForNavigation();\
-            return page;\
-        }",
+        pageWaitMs: 10000,
+        pageWaitSelector: null,
+        gotoFunction: ''
     }
 };
