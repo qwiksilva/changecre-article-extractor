@@ -368,12 +368,12 @@ Apify.main(async () => {
 
                 if (apiEndpoint) {
                     var config = {
-                        method: 'post',
+                        method: 'put',
                         url: apiEndpoint,
                         headers: { 
                             'Content-Type': 'application/json'
                         },
-                        data : JSON.stringify(completeResult)
+                        data: JSON.stringify(completeResult)
                     };
 
                     try {
