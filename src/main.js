@@ -121,7 +121,7 @@ Apify.main(async () => {
         console.log('state prepared');
     }
 
-    console.log(`We got ${startUrls.length} from the list`);
+    console.log(`We got ${startUrls.concat(articleUrls).length} start URLs`);
 
     const requestQueue = await Apify.openRequestQueue();
 
