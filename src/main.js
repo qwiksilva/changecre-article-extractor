@@ -17,7 +17,7 @@ Apify.main(async () => {
 
     const {
         // These are category URLs mostly
-        startUrls,
+        startUrls = [],
         articleUrls = [],
         apiEndpoint = false,
         datasetId = null,
