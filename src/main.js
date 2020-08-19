@@ -281,7 +281,7 @@ Apify.main(async () => {
             const result = {
                 url: request.url,
                 loadedUrl,
-                domain: request.userData.domain,
+                domain: request.userData.domain ? request.userData.domain : request.userData.loadedDomain,
                 loadedDomain: request.userData.loadedDomain,
                 ...metadata,
                 html: saveHtml ? html : undefined,
