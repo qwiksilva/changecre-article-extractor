@@ -276,7 +276,7 @@ Apify.main(async () => {
         }
 
         if (request.userData.label === 'ARTICLE') {
-            const metadata = extractor(html );
+            const metadata = extractor(html);
 
             const result = {
                 url: request.url,
@@ -302,7 +302,7 @@ Apify.main(async () => {
                     const evaluatePageFunction = async (fnString) => {
                         const fn = eval(fnString);
                         try {
-                            const result = await fn($);
+                            const result = await fn($, result);
                             return { result };
                         } catch (e) {
                             return { error: e.toString()};
@@ -315,7 +315,7 @@ Apify.main(async () => {
                         userResult = result;
                     }
                 } else {
-                    userResult = await executeExtendOutputFn(extendOutputFunctionEvaled, $);
+                    userResult = await executeExtendOutputFn(extendOutputFunctionEvaled, $, result);
                 }
             }
 

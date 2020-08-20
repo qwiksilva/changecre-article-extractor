@@ -6,9 +6,8 @@ module.exports = {
     },
     MAX_DATASET_ITEMS_LOADED: 3 * 1000 * 1000,
     test_input: {
-        startUrls: [{"url": "https://www.nmhc.org/news/newsroom/"}],
-        articleUrls: [],//[{"url": "https://www.nmhc.org/news/nmhc-news/2020/more-apartment-operators-move-to-flex-payment-models/"}],
-        // startUrls: [{"url": "https://www.nmhc.org/news/nmhc-news/2020/more-apartment-operators-move-to-flex-payment-models/", "userData": {"label":"ARTICLE"}}],
+        startUrls: [{"url": "https://www.multihousingnews.com/"}],
+        articleUrls: [],
         apiEndpoint: false,
         datasetId: false,
         onlyNewArticles: false,
@@ -18,10 +17,7 @@ module.exports = {
         minWords: 121,
         dateFrom: false,
         isUrlArticleDefinition: {
-            "linkIncludes":[
-                "/news/nmhc-news/",
-                "/news/press-release/"
-            ]
+            "minDashes":4
         },
         mustHaveDate: false,
         pseudoUrls: false,
@@ -37,7 +33,7 @@ module.exports = {
         notifyAfterCUs: 10,
         notificationEmails: false,
         notifyAfterCUsPeriodically: 10,
-        useBrowser: true,
+        useBrowser: false,
         pageWaitMs: 10000,
         pageWaitSelector: null,
         gotoFunction: ''

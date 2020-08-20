@@ -40,7 +40,7 @@ const loadAllDataset = async (dataset, items, offset) => {
 };
 module.exports.loadAllDataset = loadAllDataset;
 
-module.exports.executeExtendOutputFn = async (fn, $) => {
+module.exports.executeExtendOutputFn = async (fn, $, result) => {
     const isObject = (val) => typeof val === 'object' && val !== null && !Array.isArray(val);
 
     let userResult = {};
@@ -51,7 +51,7 @@ module.exports.executeExtendOutputFn = async (fn, $) => {
 
     try {
         // For Puppeteer, you will need to do this inside page.evaluate
-        userResult = await fn($);
+        userResult = await fn($, result);
     } catch (e) {
         console.log(`extendOutputFunction crashed! Pushing default output. Please fix your function if you want to update the output. Error: ${e}`);
     }
