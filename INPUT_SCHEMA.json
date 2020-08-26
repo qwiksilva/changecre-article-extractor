@@ -16,6 +16,12 @@
             "description": "Direct URLs to the articles to be parsed. No extra pages are enqueued from article pages.",
             "editor": "requestListSources"
         },
+        "bubbleEndpoint": {
+            "title": "Bubble.io Endpoint",
+            "type": "string",
+            "description": "URL for where you want to send the data to. Leave blank if you do not want to send data to an API.",
+            "editor": "textfield"
+        },
         "apiEndpoint": {
             "title": "API Endpoint",
             "type": "string",

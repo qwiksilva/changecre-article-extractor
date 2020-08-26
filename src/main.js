@@ -19,6 +19,7 @@ Apify.main(async () => {
         // These are category URLs mostly
         startUrls = [],
         articleUrls = [],
+        bubbleEndpoint,
         apiEndpoint = false,
         datasetId = null,
         onlyNewArticles = false,
@@ -319,7 +320,7 @@ Apify.main(async () => {
                 }
             }
 
-            const completeResult = { ...result, ...overrideFields, ...userResult };
+            const completeResult = { ...result, ...overrideFields, ...request.userData, ...userResult };
 
             console.log('Raw date:', completeResult.date);
 
@@ -366,6 +367,38 @@ Apify.main(async () => {
                 console.log(`IS VALID ARTICLE --- ${request.url}`);
                 await dataset.pushData(completeResult);
 
+                if (bubbleEndpoint) {
+                    const now = new Date();
+                    const bubble_data = {
+                        'Url': completeResult.loadedUrl,
+                        'Date': completeResult.date || moment(now.toISOString()),
+                        'Headline': completeResult.title,
+                        'Media Outlet': completeResult.publisher || completeResult.domain,
+                        'Worth Reading': completeResult.worthReading || '',
+                        'Subcategories': completeResult.subcategories || '',
+                        'Text': completeResult.text,
+                        'Iframley Author': completeResult.author[0],
+                        'Iframely Description': completeResult.description,
+                        'Iframely Thumbnail': completeResult.image
+                    };
+    
+                    const bubble_config = {
+                        method: 'post',
+                        url: bubbleEndpoint,
+                        headers: { 
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify(bubble_data)
+                    };
+                    try {
+                        const response = await axios(bubble_config);
+                        console.log("Data sent to Bubble with response:")
+                        console.log(JSON.stringify(response.data));
+                    } catch(error) {
+                        console.log("API error", error);
+                    }
+                }
+                
                 if (apiEndpoint) {
                     var config = {
                         method: 'put',
