@@ -394,6 +394,23 @@ Apify.main(async () => {
                         const response = await axios(bubble_config);
                         console.log("Data sent to Bubble with response:")
                         console.log(JSON.stringify(response.data));
+
+                        if (gsheetsEndpoint) {
+                            const sheets_config = {
+                                method: 'post',
+                                url: gsheetsEndpoint,
+                                headers: { 
+                                    'Content-Type': 'application/json'
+                                },
+                                params: {
+                                    'url': completeResult.url,
+                                    'bubbleID': response.data.id
+                                }
+                            };
+                            const sheets_response = await axios(sheets_config);
+                            console.log("Data sent to Sheets with response:")
+                            console.log(JSON.stringify(sheets_response.data));
+                        }
                     } catch(error) {
                         console.log("API error", error);
                     }
@@ -401,7 +418,7 @@ Apify.main(async () => {
                 
                 if (apiEndpoint) {
                     var config = {
-                        method: 'put',
+                        method: 'post',
                         url: apiEndpoint,
                         headers: { 
                             'Content-Type': 'application/json'
