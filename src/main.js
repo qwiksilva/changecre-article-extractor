@@ -371,12 +371,12 @@ Apify.main(async () => {
                 if (bubbleEndpoint) {
                     const now = new Date();
                     const bubble_data = {
-                        'Url': completeResult.loadedUrl,
-                        'Date': completeResult.date || moment(now.toISOString()),
-                        'Headline': completeResult.title,
-                        'Media Outlet': completeResult.publisher || completeResult.domain,
-                        'Worth Reading': completeResult.worthReading || '',
-                        'Subcategories': completeResult.subcategories || '',
+                        'Url': completeResult['Url'] || completeResult.loadedUrl,
+                        'Date': (completeResult.date || completeResult['Date']) || moment(now.toISOString()),
+                        'Headline': completeResult['Headline'] || completeResult.title,
+                        'Media Outlet': completeResult['Media Outlet'] || completeResult.domain,
+                        'Worth Reading': completeResult['Worth Reading'] || '',
+                        'Subcategories': completeResult['Subcategories'] || '',
                         'Text': completeResult.text,
                         'Iframley Author': completeResult.author[0],
                         'Iframely Description': completeResult.description,
