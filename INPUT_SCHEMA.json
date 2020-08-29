@@ -22,6 +22,12 @@
             "description": "URL for where you want to send the data to. Leave blank if you do not want to send data to an API.",
             "editor": "textfield"
         },
+        "gsheetsEndpoint": {
+            "title": "gsheets Endpoint",
+            "type": "string",
+            "description": "URL for where you want to send the data to. Leave blank if you do not want to send data to an API.",
+            "editor": "textfield"
+        },
         "apiEndpoint": {
             "title": "API Endpoint",
             "type": "string",

@@ -20,6 +20,7 @@ Apify.main(async () => {
         startUrls = [],
         articleUrls = [],
         bubbleEndpoint,
+        gsheetsEndpoint,
         apiEndpoint = false,
         datasetId = null,
         onlyNewArticles = false,
@@ -303,15 +304,15 @@ Apify.main(async () => {
                     const evaluatePageFunction = async (fnString) => {
                         const fn = eval(fnString);
                         try {
-                            const result = await fn($, result);
-                            return { result };
+                            const fnResult = await fn($, result);
+                            return { fnResult };
                         } catch (e) {
                             return { error: e.toString()};
                         }
                     }
                     const { result, error } = await page.evaluate(evaluatePageFunction, pageFunctionString);
                     if (error) {
-                        console.log(`extendOutputFunctionfailed. Returning default output. Error: ${error}`);
+                        console.log(`extendOutputFunction failed. Returning default output. Error: ${error}`);
                     } else {
                         userResult = result;
                     }
