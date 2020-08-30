@@ -382,6 +382,10 @@ Apify.main(async () => {
                         'Iframely Description': completeResult.description,
                         'Iframely Thumbnail': completeResult.image
                     };
+
+                    console.log('bubble_data',bubble_data);
+                    console.log('completeResult',completeResult);
+                    console.log('request.userData',request.userData);
     
                     const bubble_config = {
                         method: 'post',
