@@ -149,12 +149,10 @@ Apify.main(async () => {
         const { url } = request;
         console.log(`Enquing article URL: ${url}`);
 
+        const label = {label: 'ARTICLE', index: 0};
         await requestQueue.addRequest({
             url,
-            userData: {
-                label: 'ARTICLE',
-                index: 0,
-            },
+            userData: {...label, ...request.userData},
             headers: useGoogleBotHeaders ? GOOGLE_BOT_HEADERS : undefined,
         });
         index++;
