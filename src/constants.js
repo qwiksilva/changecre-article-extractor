@@ -1,3 +1,14 @@
+const url = 'https://www.housingwire.com/articles/so-you-want-to-eclose-a-mortgage-in-texas/';
+
+const userData = {
+    'Worth Reading':'No', 
+    'Headline':'Test', 
+    'Subcategories':'', 
+    'Date':'Wed Sep 02 00:00:00 GMT-07:00 2020', 
+    'Media Outlet':'www.housingfinance.com', 
+    'Url':url
+};
+
 module.exports = {
     GOOGLE_BOT_HEADERS: {
         'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
@@ -5,10 +16,32 @@ module.exports = {
         'X-Forwarded-For': '66.249.66.1',
     },
     MAX_DATASET_ITEMS_LOADED: 3 * 1000 * 1000,
+    
     test_input: {
-        startUrls: [{"url": "https://www.multihousingnews.com/"}],
-        articleUrls: [],
+        startUrls: [],
+        articleUrls: [{
+            'url':url, 
+            'userData':userData
+        }],
+        bubbleEndpoint: 'https://crenews.bubbleapps.io/version-test/api/1.1/obj/articledata?api_token=5c2afeadfe6a1227e630a06ca9978393',
+        gsheetsEndpoint: false,
         apiEndpoint: false,
+        classifierAPIConfig: {
+            "method": "post",
+            "url": "https://api.tap.aylien.com/v1/models/fadca576-6a35-4dca-adeb-7c0717beff47",
+            "headers": { 
+              "x-aylien-tap-application-key": "0e8765f4b65f4f67866983d1fcbb5b7d", 
+              "Content-Type": "application/x-www-form-urlencoded"
+            }
+          },
+        summaryAPIConfig: {
+            "method": 'post',
+            "url": 'https://api.deepai.org/api/summarization',
+            "headers": { 
+              'api-key': '10321a68-a3d8-4d35-9935-1c49bcde9379', 
+              'Content-Type': 'application/x-www-form-urlencoded'
+            }
+          },
         datasetId: false,
         onlyNewArticles: false,
         onlyInsideArticles: true,

@@ -34,6 +34,26 @@
             "description": "URL for where you want to send the data to. Leave blank if you do not want to send data to an API.",
             "editor": "textfield"
         },
+        "classifierAPIConfig": {
+            "title": "NLP Classifier API Config",
+            "type": "object",
+            "description": "URL for where you want to send the data to. Leave blank if you do not want to send data to an API.",
+            "editor": "json",
+            "prefill": {
+                "method": "post",
+                "url": "https://api.tap.aylien.com/v1/models/fadca576-6a35-4dca-adeb-7c0717beff47",
+                "headers": { 
+                  "x-aylien-tap-application-key": "0e8765f4b65f4f67866983d1fcbb5b7d", 
+                  "Content-Type": "application/x-www-form-urlencoded"
+                }
+              }
+        },
+        "summaryAPIConfig": {
+            "title": "Text Summary API Config",
+            "type": "string",
+            "description": "URL for where you want to send the data to. Leave blank if you do not want to send data to an API.",
+            "editor": "textfield"
+        },
         "datasetId": {
             "title": "Dataset ID",
             "type": "string",

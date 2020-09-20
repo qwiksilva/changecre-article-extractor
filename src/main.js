@@ -4,6 +4,7 @@ const chrono = require('chrono-node');
 const urlLib = require('url');
 const moment = require('moment');
 var axios = require('axios');
+var qs = require('qs');
 
 const { parseDateToMoment, loadAllDataset, executeExtendOutputFn, isDateValid, findDateInURL, parseDomain, completeHref } = require('./utils.js');
 const { countWords, isUrlArticle, isInDateRange } = require('./article-recognition.js');
@@ -22,6 +23,8 @@ Apify.main(async () => {
         bubbleEndpoint,
         gsheetsEndpoint,
         apiEndpoint = false,
+        classifierAPIConfig,
+        summaryAPIConfig,
         datasetId = null,
         onlyNewArticles = false,
         onlyInsideArticles = true,
@@ -362,29 +365,60 @@ Apify.main(async () => {
                 && !!completeResult.title
                 && wordsCount > minWords;
 
-            if (isArticle) {
+            if (isArticle || 'Headline' in request.userData) {
                 console.log(`IS VALID ARTICLE --- ${request.url}`);
+
+                const now = new Date();
+                completeResult['Date'] = (completeResult.date || completeResult['Date']) || moment(now.toISOString())
+
+                if (classifierAPIConfig && completeResult.text) {
+                    classifierAPIConfig["data"] = qs.stringify({
+                        'text': completeResult.text 
+                    });
+                    try {
+                        const response = await axios(classifierAPIConfig);
+                        console.log("Data sent to Aylien with response:")
+                        console.log(JSON.stringify(response.data));
+                        completeResult['Worth Reading AI'] = response.data["categories"][0]["label"];
+                        completeResult['Worth Reading AI Confidence'] = response.data["categories"][0]["confidence"];
+                    } catch(error) {
+                        console.log("Aylien API error", error);
+                    }
+                } 
+
+                if (summaryAPIConfig && completeResult.text) {
+                    summaryAPIConfig["data"] = qs.stringify({
+                        'text': completeResult.text 
+                    });
+                    try {
+                        const response = await axios(summaryAPIConfig);
+                        console.log("Data sent to Text Summary API with response:")
+                        console.log(JSON.stringify(response.data));
+                        completeResult['Summary Text'] = response.data["output"];
+                    } catch(error) {
+                        console.log("Text Summary API error", error);
+                    }
+                }
+
                 await dataset.pushData(completeResult);
 
                 if (bubbleEndpoint) {
-                    const now = new Date();
                     const bubble_data = {
                         'Url': completeResult['Url'] || completeResult.loadedUrl,
-                        'Date': (completeResult.date || completeResult['Date']) || moment(now.toISOString()),
+                        'Date': completeResult['Date'],
                         'Headline': completeResult['Headline'] || completeResult.title,
                         'Media Outlet': completeResult['Media Outlet'] || completeResult.domain,
-                        'Worth Reading': completeResult['Worth Reading'] || '',
-                        'Subcategories': completeResult['Subcategories'] || '',
+                        'Worth Reading': completeResult['Worth Reading'],
+                        'Worth Reading AI': completeResult['Worth Reading AI'],
+                        'Worth Reading AI Confidence': completeResult['Worth Reading AI Confidence'],
+                        'Summary Text': completeResult['Summary Text'],
+                        'Subcategories': completeResult['Subcategories'],
                         'Text': completeResult.text,
                         'Iframley Author': completeResult.author[0],
                         'Iframely Description': completeResult.description,
                         'Iframely Thumbnail': completeResult.image
                     };
-
-                    console.log('bubble_data',bubble_data);
-                    console.log('completeResult',completeResult);
-                    console.log('request.userData',request.userData);
-    
+                    
                     const bubble_config = {
                         method: 'post',
                         url: bubbleEndpoint,
@@ -415,7 +449,7 @@ Apify.main(async () => {
                             console.log(JSON.stringify(sheets_response.data));
                         }
                     } catch(error) {
-                        console.log("API error", error);
+                        console.log("Bubble error", error.response.data.body);
                     }
                 }
                 
@@ -460,9 +494,47 @@ Apify.main(async () => {
 
     const gotoFunctionCode = eval(gotoFunction);
 
+    const handleFailedRequestFunction = async ({request, error}) => {
+        if (bubbleEndpoint && 'Headline' in request.userData) {
+            const bubble_config = {
+                method: 'post',
+                url: bubbleEndpoint,
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify(request.userData)
+            };
+            try {
+                const response = await axios(bubble_config);
+                console.log("Data sent to Bubble with response:")
+                console.log(JSON.stringify(response.data));
+
+                if (gsheetsEndpoint) {
+                    const sheets_config = {
+                        method: 'post',
+                        url: gsheetsEndpoint,
+                        headers: { 
+                            'Content-Type': 'application/json'
+                        },
+                        params: {
+                            'url': request.url,
+                            'bubbleID': response.data.id
+                        }
+                    };
+                    const sheets_response = await axios(sheets_config);
+                    console.log("Data sent to Sheets with response:")
+                    console.log(JSON.stringify(sheets_response.data));
+                }
+            } catch(error) {
+                console.log("Bubble error", error);
+            }
+        }
+    };
+
     const genericCrawlerOptions = {
         requestQueue,
         handlePageFunction,
+        handleFailedRequestFunction,
         gotoFunction: gotoFunctionCode,
         maxConcurrency,
         maxRequestRetries: 3,
