@@ -416,7 +416,8 @@ Apify.main(async () => {
                         'Text': completeResult.text,
                         'Iframley Author': completeResult.author[0],
                         'Iframely Description': completeResult.description,
-                        'Iframely Thumbnail': completeResult.image
+                        'Iframely Thumbnail': completeResult.image,
+                        'Source': completeResult['Source'] || 'Crawler',
                     };
                     
                     const bubble_config = {
