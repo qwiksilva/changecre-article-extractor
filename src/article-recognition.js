@@ -17,7 +17,12 @@ module.exports.isUrlArticle = (url, isUrlArticleDefinition) => {
             return true;
         }
     }
-
+    const excludes = isUrlArticleDefinition.mustNotInclude || [];
+    for (const string of excludes) {
+        if (url.toLowerCase().includes(string)) {
+            return false;
+        }
+    }
     if (isUrlArticleDefinition.hasDate) {
         const foundDate = findDateInURL(url);
         if (foundDate) {
@@ -35,10 +40,15 @@ module.exports.isUrlArticle = (url, isUrlArticleDefinition) => {
 };
 
 module.exports.isInDateRange = (publicationDateISO, dateFrom) => {
+    const publicationDate = moment(publicationDateISO);
+    const currentDate = moment();
+    if (publicationDate > currentDate) {
+        return false
+    }
+
     if (!dateFrom) {
         return true;
     }
-    const publicationDate = moment(publicationDateISO);
-    const currentDate = moment();
-    return (publicationDate > dateFrom) && (publicationDate < currentDate);
+    
+    return publicationDate > dateFrom;
 };
