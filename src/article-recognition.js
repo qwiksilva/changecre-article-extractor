@@ -39,5 +39,6 @@ module.exports.isInDateRange = (publicationDateISO, dateFrom) => {
         return true;
     }
     const publicationDate = moment(publicationDateISO);
-    return publicationDate > dateFrom;
+    const currentDate = moment();
+    return (publicationDate > dateFrom) && (publicationDate < currentDate);
 };
