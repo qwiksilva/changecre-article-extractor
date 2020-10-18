@@ -218,13 +218,13 @@ Apify.main(async () => {
                 links = allHrefs.filter((link) => loadedDomain === parseDomain(link));
                 console.log(`number of inside links: ${links.length}`);
             }
-
+            
             // filtered only new urls
             if (onlyNewArticles) {
                 links = links.filter((href) => !state[href]);
                 console.log(`number of inside links after state filter: ${links.length}`);
             }
-
+            console.log(links);
             // filtered only proper article urls
             const articleUrlHrefs = links.filter((link) => isUrlArticle(link, isUrlArticleDefinition));
             console.log(`number of article url links: ${articleUrlHrefs.length}`);
