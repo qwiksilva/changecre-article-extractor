@@ -1,3 +1,6 @@
+# Change CRE documentation
+TODO: Documnet CHange GRE specific options on Apify page
+
 ### Smart article extractor
 
 This actor is an extension of Apify's [Article Text Extractor](https://apify.com/mtrunkat/article-text-extractor). It has several extra features:
