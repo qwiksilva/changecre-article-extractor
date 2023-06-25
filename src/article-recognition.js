@@ -20,6 +20,7 @@ module.exports.isUrlArticle = (url, isUrlArticleDefinition) => {
     const excludes = isUrlArticleDefinition.mustNotInclude || [];
     for (const string of excludes) {
         if (url.toLowerCase().includes(string)) {
+            console.log(`url ${url} contains exclusion phrase: ${string}`);
             return false;
         }
     }
@@ -36,6 +37,8 @@ module.exports.isUrlArticle = (url, isUrlArticleDefinition) => {
             return true;
         }   
     }
+
+    console.log(`url ${url} did not pass article check for uknown reason`);
     return false;
 };
 
