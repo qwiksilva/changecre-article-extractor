@@ -1,5 +1,37 @@
 # Change CRE documentation
-TODO: Documnet CHange GRE specific options on Apify page
+This repo is the Javascript code for the [Changecre Article Extractor](https://console.apify.com/actors/OLgGkLs56IQNm3wAn/source) [actor](https://docs.apify.com/academy/getting-started/actors). There is a [task](https://docs.apify.com/platform/actors/running/tasks) create dfrom this actor for each desired real estat news homepage to scrape. These tasks are run with a [schedule](https://docs.apify.com/platform/schedules) which runs everyday.
+
+There is also a task where it's possible to input a one-off domain or article url [here](https://console.apify.com/actors/tasks/vTqRcQI6C9AmAbENS/console).
+
+# How it works
+The homepage is scraped for all links. The links are filtered if they have been processed before based on the `cnaonicalUrl`. The links are then passed through an article recognitino functino to determine if they are articles or not. The article urls are queued to be visited and processed to get the results for each article url. There are sometimes specific javascript that needs to be executed in the 'goTo' function that allows the page to be scraped properly. If the date of the article cannot be found on the page, the date that the article is scraped is used.
+
+## Results 
+There are results for each article url: 
+```
+Date
+author
+canonicalLink
+date
+description
+domain
+image
+index
+label
+lang
+loadedDomain
+loadedUrl
+publisher
+softTitle
+text
+title
+url
+```
+
+### Results Storage
+Results from a task are stored in an Apify database, which serves as long term storage as well for checking if new articles have already been processed.
+
+# Documentation not specific to this repo
 
 ### Smart article extractor
 
